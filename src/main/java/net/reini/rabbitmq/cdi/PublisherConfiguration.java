@@ -6,11 +6,11 @@
 
 package net.reini.rabbitmq.cdi;
 
-import java.io.IOException;
-
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.AMQP.BasicProperties.Builder;
 import com.rabbitmq.client.Channel;
+
+import java.io.IOException;
 
 /**
  * A publisher configuration stores all important settings and options used for publishing and
@@ -24,8 +24,7 @@ final class PublisherConfiguration {
   private final String exchange;
   private final String routingKey;
 
-  PublisherConfiguration(String exchange, String routingKey, Builder basicPropertiesBuilder,
-      Encoder<?> encoder) {
+  PublisherConfiguration(String exchange, String routingKey, Builder basicPropertiesBuilder, Encoder<?> encoder) {
     this.exchange = exchange;
     this.routingKey = routingKey;
     this.messageEncoder = encoder;
@@ -39,6 +38,10 @@ final class PublisherConfiguration {
   void publish(Channel channel, Object event) throws EncodeException, IOException {
     @SuppressWarnings("unchecked")
     byte[] data = ((Encoder<Object>) messageEncoder).encode(event);
-    channel.basicPublish(exchange, routingKey, basicProperties, data);
+    channel.basicPublish(this.getExchange(), routingKey, basicProperties, data);
+  }
+
+  private String getExchange() {
+    return this.exchange;
   }
 }
